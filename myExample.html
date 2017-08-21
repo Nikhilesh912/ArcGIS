@@ -42,13 +42,6 @@
         }
       });
 
-      // limit visualization to southeast U.S. counties
-      var defExp = ["STATE = 'LA'", "STATE = 'AL'", "STATE = 'AR'",
-        "STATE = 'MS'", "STATE = 'TN'", "STATE = 'GA'",
-        "STATE = 'FL'", "STATE = 'SC'", "STATE = 'NC'",
-        "STATE = 'VA'", "STATE = 'KY'", "STATE = 'WV'"
-      ];
-
       /*****************************************************************
        * Set a color visual variable on the renderer. Color visual variables
        * create continuous ramps that map low data values to weak or
@@ -57,6 +50,9 @@
        * a color proportionally between the min and max colors.
        *****************************************************************/
 
+       /* Renderer for poverty feature layer
+          Set pop variables to display poverty population vs total population
+        */
       var renderer = new SimpleRenderer({
         symbol: defaultSym,
         label: "% population in poverty by county",
@@ -78,6 +74,7 @@
         }]
       });
 
+      // Create a feature layer for displaying poverty in U.S
       var povLyr = new FeatureLayer({
         url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/counties_politics_poverty/FeatureServer/0",
         renderer: renderer,
@@ -99,16 +96,18 @@
               places: 0
             }
           }]
-        },
-        //definitionExpression: defExp.join(" OR ") // only display counties from states in defExp
+        }
       });
 
+      /*
+        Simple mark symbol to display the major cities in U.S 
+      */
       var citiesRenderer = new SimpleRenderer({
           symbol: new SimpleMarkerSymbol({
             size: 10,
             color: "#FF4000",
-            outline: { // autocasts as new SimpleLineSymbol()
-              color: [255, 64, 0, 0.4], // autocasts as new Color()
+            outline: { 
+              color: [255, 170, 0, 0.4],
               width: 7
             }
           })
@@ -119,10 +118,13 @@
           renderer: citiesRenderer
         });
 
+        /*
+          Create highway renderer with simple line symbol to display highway in U.S
+        */
         var hwyRenderer = new SimpleRenderer({
           symbol: new SimpleLineSymbol({
             width: 1,
-            color: [64, 255, 0]
+            color: [94, 209, 229]
           })
         });
 
@@ -134,7 +136,7 @@
           definitionExpression: "CLASS = 'O' OR CLASS = 'I' OR CLASS = 'U'"
         });
 
-		var statesRenderer = new SimpleRenderer({
+		    var statesRenderer = new SimpleRenderer({
           symbol: new SimpleFillSymbol({
             color: [0, 255, 0, 0.1],
             outline: {
@@ -149,38 +151,31 @@
           renderer: statesRenderer
         });
 
-      var map = new Map({
-        basemap: "gray",
-        layers: [povLyr, statesLyr, hwyLyr, citiesLyr]
-      });
+        var map = new Map({
+          basemap: "gray",
+          layers: [povLyr, statesLyr, hwyLyr, citiesLyr]
+        });
 
-      var view = new MapView({
-        container: "viewDiv",
-        map: map,
-        ccenter: [-88.252120, 37.021708],
-        zoom: 5
-      });
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-87.308955, 40.299828],
+          zoom: 5
+        });
 
-      /******************************************************************
-       *
-       * Add layers to layerInfos on the legend
-       *
-       ******************************************************************/
+        var legend = new Legend({
+          view: view,
+          layerInfos: [
+          {
+            layer: povLyr,
+            title: "Poverty in U.S.A"
+          }, {
+              layer: hwyLyr,
+              title: "Major Highways in U.S.A"
+            }]
+        });
 
-      var legend = new Legend({
-        view: view,
-        layerInfos: [
-        {
-          layer: povLyr,
-          title: "Poverty in the southeast U.S."
-        }, {
-            layer: hwyLyr,
-            title: "Major Highways"
-          }]
-      });
-
-      view.ui.add(legend, "top-right");
-
+        view.ui.add(legend, "top-right");
     });
   </script>
 </head>
