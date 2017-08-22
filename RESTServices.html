@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Data-driven continuous color - 4.4</title>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.4/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.4/"></script>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    require([
+      "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/SimpleRenderer",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/symbols/SimpleLineSymbol",
+        "esri/symbols/SimpleFillSymbol",
+        "esri/geometry/Point",
+        "esri/widgets/Legend",
+        "dojo/domReady!"
+    ], function(
+       Map, MapView, FeatureLayer, SimpleRenderer,
+        SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, Point, Legend
+    ) {
+
+      var defaultSym = new SimpleFillSymbol({
+        outline: {
+          color: "lightgray",
+          width: 0.5
+        }
+      });
+       
+       /* Service 1 */
+      var cityRenderer = new SimpleRenderer({
+        symbol: new SimpleMarkerSymbol({
+          size: 8,
+          color: "#1CD5EB",
+          outline: { // autocasts as new SimpleLineSymbol()
+            color: [255, 64, 0, 0.4], // autocasts as new Color()
+            width: 1
+          }
+        })
+      });
+      
+      var citiesLyr = new FeatureLayer({
+        url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/0",
+        renderer: cityRenderer
+      });
+
+      var highwayRenderer = new SimpleRenderer({
+        symbol: new SimpleLineSymbol({
+            color: [64, 255, 0], // autocasts as new Color()
+            width: 1
+        })
+      });
+
+      var highwaysLayer = new FeatureLayer({
+        url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/1",
+        renderer: highwayRenderer
+      });
+
+    var defaultSym = new SimpleFillSymbol({
+        outline: {
+          color: "#ffffff",
+          width: 0.5
+        }
+      });
+
+      var stateRenderer = new SimpleRenderer({
+        symbol: defaultSym
+      });
+      
+      var stateLayer = new FeatureLayer({
+        url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2",
+        renderer: stateRenderer
+      });
+
+      var countyRenderer = new SimpleRenderer({
+        symbol: defaultSym,
+        visualVariables: [{
+          type: "color",
+          field: "pop00_sqmi",
+          normalizationField: "pop2000"
+        }]
+      });
+      
+      var countyLayer = new FeatureLayer({
+        url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3",
+        renderer: countyRenderer
+      });    
+
+
+      /* Service 2 */
+      // var worldCitiesRenderer = new SimpleRenderer({
+      //   symbol: defaultSym
+      // });
+
+      // var worldCitiesLayer = new FeatureLayer({
+      //   url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/WorldTimeZones/MapServer/0",
+      //   renderer: worldCitiesRenderer
+      // });
+
+      // var routePolylineSymbol = new SimpleLineSymbol(
+      //   SimpleLineSymbol.STYLE_SOLID, 
+      //   new Color([89,95,35]), 
+      //   4.0
+      // );
+
+      // var worldTimeZonesRenderer = new SimpleRenderer({
+      //   symbol: routePolylineSymbol
+      // });
+
+      // var worldTimeZonesLayer = new FeatureLayer({
+      //   url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/WorldTimeZones/MapServer/1",
+      //   renderer: worldTimeZonesRenderer
+      // });
+
+      // var worlRegionsRenderer = new SimpleRenderer({
+      //   symbol: defaultSym
+      // });
+
+      // var worlRegionsLayer = new FeatureLayer({
+      //   url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/WorldTimeZones/MapServer/2",
+      //   renderer: worlRegionsRenderer
+      // });
+
+      //   var transportationLyr = new TileLayer({
+      //     url: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer",
+      //     // This property can be used to uniquely identify the layer
+      //     id: "streets",
+      //     visible: true
+      //   });
+
+      var map = new Map({
+        basemap: "gray",
+        layers: [stateLayer, citiesLyr, countyLayer, worldCitiesLayer]
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-85.050200, 33.125524],
+        zoom: 6
+      });
+
+      /******************************************************************
+       *
+       * Add layers to layerInfos on the legend
+       *
+       ******************************************************************/
+
+      var legend = new Legend({
+        view: view,
+      });
+
+      view.ui.add(legend, "top-right");
+
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+
+</html>
